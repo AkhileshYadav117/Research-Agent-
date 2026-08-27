@@ -1,0 +1,28 @@
+# -- Core Web Framework --
+streamlit==1.62.0
+
+# -- AI / LLM --
+openai==3.3.1
+groq==1.6.0
+
+# -- Web Search --
+ddgs==9.15.0
+duckduckgo_search==8.1.1
+
+# -- Web Scraping --
+beautifulsoup4==4.15.0
+requests==2.34.2
+lxml==6.1.2
+
+# -- Voice (TTS + Speech Recognition) --
+gTTS==2.5.4
+SpeechRecognition==3.17.0
+
+# -- PDF Export --
+fpdf2==2.8.8
+
+# -- Environment Variables --
+python-dotenv==1.2.3
+
+# -- Utilities --
+pillow==12.3.0

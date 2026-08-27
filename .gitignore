@@ -1,0 +1,36 @@
+# -- Secrets & API Keys (NEVER push these) --
+.env
+.env.local
+.env.*.local
+
+# -- Virtual Environment --
+venv/
+env/
+.venv/
+
+# -- Python Cache --
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# -- AI Response Cache --
+groq_cache/
+
+# -- Generated Reports (user data, not code) --
+reports/
+
+# -- Research History (user data) --
+history.json
+
+# -- Logs --
+*.log
+
+# -- OS Files --
+.DS_Store
+Thumbs.db
+
+# -- IDE --
+.vscode/
+.idea/
