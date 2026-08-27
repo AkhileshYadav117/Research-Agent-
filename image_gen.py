@@ -1,36 +1,103 @@
+import os
+import time
 import requests
 from urllib.parse import quote
 
+# ---------------------------------------------------------------------------
+# Prompt cleaner — strips trigger phrases so only the subject is sent
+# ---------------------------------------------------------------------------
+_TRIGGERS = [
+    "generate an image of", "generate image of", "create an image of",
+    "create image of", "make an image of", "make image of",
+    "draw a", "draw an", "draw", "generate a picture of", "create a picture of",
+    "show me a picture of", "picture of", "image of",
+    "generate art of", "create art of", "paint", "illustrate",
+    "generate an", "generate a", "create an", "create a",
+    "make a", "make an",
+]
+
+def _clean_prompt(prompt: str) -> str:
+    cleaned = prompt.lower()
+    for t in _TRIGGERS:
+        cleaned = cleaned.replace(t, "")
+    cleaned = cleaned.strip(" :.,!?") or prompt
+    # Add quality boosters for better results
+    return cleaned + ", high quality, detailed, photorealistic, 4k"
+
+
+# ---------------------------------------------------------------------------
+# Primary: Hugging Face Inference API — FLUX.1-schnell (FREE)
+# ---------------------------------------------------------------------------
+HF_API_KEY = os.environ.get("HUGGINGFACE_API_KEY", "")
+HF_MODEL   = "black-forest-labs/FLUX.1-schnell"
+HF_URL     = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+
+def _generate_via_huggingface(prompt: str) -> bytes:
+    if not HF_API_KEY:
+        return b""
+    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+    payload = {
+        "inputs": prompt,
+        "parameters": {
+            "num_inference_steps": 4,   # schnell is optimized for 4 steps
+            "guidance_scale": 0.0,      # schnell works best at 0 guidance
+        }
+    }
+    # Retry up to 3 times (model may be loading on first call)
+    for attempt in range(3):
+        try:
+            resp = requests.post(HF_URL, headers=headers, json=payload, timeout=60)
+            if resp.status_code == 200 and resp.content:
+                return resp.content
+            if resp.status_code == 503:
+                # Model is loading — wait and retry
+                time.sleep(10)
+                continue
+        except Exception:
+            time.sleep(3)
+    return b""
+
+
+# ---------------------------------------------------------------------------
+# Fallback: Pollinations.ai (no API key needed, free)
+# ---------------------------------------------------------------------------
+def _generate_via_pollinations(prompt: str) -> bytes:
+    try:
+        encoded = quote(prompt)
+        url = (
+            f"https://image.pollinations.ai/prompt/{encoded}"
+            f"?width=1024&height=1024&nologo=true&model=flux&enhance=true&seed={int(time.time())}"
+        )
+        resp = requests.get(url, timeout=60)
+        resp.raise_for_status()
+        if len(resp.content) > 5000:   # valid image is always > 5KB
+            return resp.content
+    except Exception:
+        pass
+    return b""
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
 def generate_image(prompt: str) -> bytes:
     """
-    Generates an image using Pollinations.ai (free, no API key required).
-    Returns image bytes, or empty bytes if it fails.
+    Generates an image from a text prompt.
+    1st: Hugging Face FLUX.1-schnell (high quality, free with API key)
+    2nd: Pollinations.ai (fallback, no key needed)
+    Returns image bytes, or empty bytes if both fail.
     """
-    try:
-        # Clean the prompt: strip common trigger phrases so only the
-        # actual subject description is sent to the image model
-        clean_prompt = prompt.lower()
-        for trigger in [
-            "generate an image of", "generate image of", "create an image of",
-            "create image of", "make an image of", "make image of",
-            "draw", "generate a picture of", "create a picture of",
-            "show me a picture of", "picture of", "image of",
-            "generate art of", "create art of", "paint", "illustrate",
-        ]:
-            clean_prompt = clean_prompt.replace(trigger, "")
-        clean_prompt = clean_prompt.strip(" :.,") or prompt
+    clean = _clean_prompt(prompt)
 
-        encoded_prompt = quote(clean_prompt)
-        url = (
-            f"https://image.pollinations.ai/prompt/{encoded_prompt}"
-            f"?width=1024&height=1024&nologo=true&model=flux&enhance=true"
-        )
+    # Try HuggingFace first if key is set
+    if HF_API_KEY:
+        result = _generate_via_huggingface(clean)
+        if result:
+            return result
 
-        response = requests.get(url, timeout=45)
-        response.raise_for_status()
-        return response.content
-    except Exception:
-        return b""
+    # Fallback to Pollinations
+    return _generate_via_pollinations(clean)
+
 
 def is_image_request(query: str) -> bool:
     """
@@ -42,5 +109,4 @@ def is_image_request(query: str) -> bool:
         "create a picture", "show me a picture", "picture of", "image of",
         "generate art", "create art", "paint", "illustrate",
     ]
-    query_lower = query.lower()
-    return any(trigger in query_lower for trigger in triggers)
+    return any(t in query.lower() for t in triggers)
