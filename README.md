@@ -4,12 +4,15 @@
 
 ### AI-Powered Research Agent — Built with Streamlit + Groq
 
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-myresearchx.streamlit.app-FF4B4B?style=for-the-badge)](https://myresearchx.streamlit.app/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.62-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
 [![Groq](https://img.shields.io/badge/Powered%20by-Groq%20LLM-orange?style=for-the-badge)](https://groq.com)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 **ResearchX** is a full-featured AI research agent that searches the web, synthesizes information, and delivers detailed reports — all in a beautiful dark-themed UI.
+
+### 👉 [Try it live → myresearchx.streamlit.app](https://myresearchx.streamlit.app/)
 
 </div>
 
@@ -38,18 +41,12 @@
 
 ---
 
-## 🖥️ Screenshots
-
-> *Dark premium UI with animated gradient title, glassmorphism cards, and live research progress*
-
----
-
 ## 🚀 Quick Start (Local)
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/researchx.git
-cd researchx
+git clone https://github.com/AkhileshYadav117/Research-Agent-.git
+cd Research-Agent-
 ```
 
 ### 2. Create a virtual environment
@@ -90,7 +87,10 @@ Open **http://localhost:8501** in your browser. 🎉
 
 ## ☁️ Deploy on Streamlit Cloud (Free)
 
-1. Fork or push this repo to GitHub
+This app is live at **[myresearchx.streamlit.app](https://myresearchx.streamlit.app/)**
+
+To deploy your own copy:
+1. Fork this repo on GitHub
 2. Go to [share.streamlit.io](https://share.streamlit.io)
 3. Connect your GitHub account
 4. Select this repo → `streamlit_app.py` → Deploy
@@ -104,7 +104,7 @@ GROQ_API_KEY = "your_groq_api_key_here"
 ## 🗂️ Project Structure
 
 ```
-researchx/
+Research-Agent/
 │
 ├── streamlit_app.py      # Main UI — Streamlit frontend
 ├── research.py           # Core research pipeline (decompose → search → synthesize)
