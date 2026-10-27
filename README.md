@@ -157,6 +157,4 @@ MIT License — free to use, modify, and distribute.
 
 Made with ❤️ using **Python**, **Streamlit**, and **Groq AI**
 
-⭐ Star this repo if you found it useful!
-
 </div>
